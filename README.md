@@ -1,2 +1,2 @@
-# minesweeper-phaser
-A minesweeper game build using phaser js
+# JS Minesweeper game
+A minesweeper game build using js
