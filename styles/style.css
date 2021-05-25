@@ -38,3 +38,11 @@
   color: #035cc3 !important;
   cursor: pointer;
 }
+
+#gameArea div.flag {
+  background-image: url(./../assets/images/flag.png) !important;
+  background-color: #ffffff !important;
+  background-size: contain;
+  color: transparent !important;
+  cursor: pointer;
+}

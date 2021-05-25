@@ -94,10 +94,28 @@ class JSMinesweeper {
 
   handleBoxClick = (_e) => {
     var x = /\d+/;
-    const _id = parseInt(_e.target?.id.match(x)[0], 10);
-    const _idx = _id - 1;
+    const _idx = parseInt(_e.target?.id.match(x)[0], 10);
     const _box = this.boxs[_idx];
     debugger;
+    if (_box.isBomb) {
+      // Game Over
+    } else {
+      _box.isClicked = true;
+      _box.isHidden = false;
+    }
+    document.querySelector(`#d${_idx}`).classList.remove("hidden");
+    document.querySelector(`#d${_idx}`).classList.remove("flag");
+  };
+
+  handleBoxRClick = (_e) => {
+    var x = /\d+/;
+    const _idx = parseInt(_e.target?.id.match(x)[0], 10);
+    const _box = this.boxs[_idx];
+
+    document.querySelector(`#d${_idx}`).classList.remove("hidden");
+    document.querySelector(`#d${_idx}`).classList.add("flag");
+    debugger;
+    _e.preventDefault();
   };
 
   plotDOM = () => {
@@ -122,6 +140,8 @@ class JSMinesweeper {
       const newContent = document.createTextNode(_text);
       newDiv.appendChild(newContent);
       newDiv.addEventListener("click", this.handleBoxClick);
+      newDiv.addEventListener("contextmenu", this.handleBoxRClick);
+
       rowBlockDiv.appendChild(newDiv);
 
       if (this.boxs[i].isRightEdge) {
