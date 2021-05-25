@@ -1,119 +1,131 @@
-const config = {
-  row: 5,
-  col: 5,
-  bomb: 3,
-  total: 0,
-};
-
-let bombPos = [];
-
-const placeBomb = () => {
-  for (let i = 0; i < bombPos.length; i++) {
-    const _id = bombPos[i];
-    const _e = document.querySelector("#d" + _id);
-    _e.innerText = "*";
-
-    // Top
-    const _t = document.querySelector("#d" + (_id - config.row));
-    if (_t) {
-      _t.innerText = parseInt(_t.textContent)
-        ? parseInt(_t.textContent) + 1
-        : 1;
-    }
-    // Top  Right
-
-    const _t2 = document.querySelector("#d" + (_id - config.row + 1));
-    if (_t2 && _id % config.row) {
-      _t2.innerText = parseInt(_t2.textContent)
-        ? parseInt(_t2.textContent) + 1
-        : 1;
-    }
-    // Right
-
-    let next = _id + 1;
-    console.log(next, _id % config.row);
-    const _t3 = document.querySelector("#d" + next);
-    if (_t3 && _id % config.row) {
-      _t3.innerText = parseInt(_t3.textContent)
-        ? parseInt(_t3.textContent) + 1
-        : 1;
-    }
-    // Bottom Right
-    const _t6 = document.querySelector("#d" + (_id + config.row + 1));
-    if (_t6 && _id % config.row) {
-      _t6.innerText = parseInt(_t6.textContent)
-        ? parseInt(_t6.textContent) + 1
-        : 1;
-    }
-
-    // Bottom
-    const _t5 = document.querySelector("#d" + (_id + config.row));
-    if (_t5) {
-      _t5.innerText = parseInt(_t5.textContent)
-        ? parseInt(_t5.textContent) + 1
-        : 1;
-    }
-
-    // Bottom Left
-
-    const _t7 = document.querySelector("#d" + (_id + config.row - 1));
-    if (_t7 && (_id % config.row) - 1) {
-      _t7.innerText = parseInt(_t7.textContent)
-        ? parseInt(_t7.textContent) - 1
-        : 1;
-    }
-
-    // Left
-    const _t4 = document.querySelector("#d" + (_id - 1));
-    if (_t4 && (_id % config.row) - 1) {
-      _t4.innerText = parseInt(_t4.textContent)
-        ? parseInt(_t4.textContent) + 1
-        : 1;
-    }
-    // Top Left
-
-    const _t8 = document.querySelector("#d" + (_id - config.row - 1));
-    if (_t8 && (_id % config.row) - 1) {
-      _t8.innerText = parseInt(_t8.textContent)
-        ? parseInt(_t8.textContent) + 1
-        : 1;
-    }
+class JSMinesweeper {
+  // Default Values
+  constructor(row = 5, col = 5, boom = 2) {
+    this.x = row;
+    this.y = col;
+    this.bomb = boom;
+    this.totalBox = row * col;
+    this.bombLocations = this.getRandomBombPos(); // Random Bomb Locations
+    this.boxs = this.getBoxs();
   }
-};
 
-const renderBoard = () => {
-  const _ROOT_DOM = document.querySelector("#gameArea");
+  getBoxs = () => {
+    var arr = [];
+    for (let i = 0; i < this.totalBox; i++) {
+      const _i = i + 1;
+      arr[i] = {
+        id: _i,
+        isBomb: this.bombLocations.includes(_i),
+        isRightEdge: _i % this.x === 0,
+        isLeftEdge: _i % this.x === 1,
+        isTopEdge: _i <= this.x,
+        isBottomEdge: _i > this.totalBox - this.x,
+        isClicked: false,
+        isHidden: true,
+        steps: this.bombLocations.includes(_i) ? -1 : 0,
+      };
+    }
 
-  for (let j = 0; j < config.col; j++) {
-    const rowDiv = document.createElement("div");
+    this.boxs = [...arr];
+    this.calcBombSteps();
+  };
 
-    for (let i = 0; i < config.row; i++) {
+  getRandomBombPos = () => {
+    var arr = [];
+    while (arr.length < this.bomb) {
+      var r = Math.floor(Math.random() * this.totalBox) + 1;
+      if (arr.indexOf(r) === -1) arr.push(r);
+    }
+    return arr;
+  };
+
+  calcBombSteps = () => {
+    for (let i = 0; i < this.totalBox; i++) {
+      const _box = this.boxs[i];
+      let _next = null; //@
+
+      if (_box.isBomb) {
+        // Left
+        _next = this.boxs[i - 1];
+        if (!_box.isLeftEdge && !_next?.isBomb) {
+          _next.steps++;
+        }
+        // Right
+        _next = this.boxs[i + 1];
+        if (!_box.isRightEdge && !_next?.isBomb) {
+          _next.steps++;
+        }
+        // Top
+        _next = this.boxs[i - this.x];
+        if (!_box.isTopEdge && !_next?.isBomb) {
+          _next.steps++;
+        }
+        // Bottom
+        _next = this.boxs[i + this.x];
+        if (!_box.isBottomEdge && !_next?.isBomb) {
+          _next.steps++;
+        }
+
+        // Top Left
+        _next = this.boxs[i - this.x - 1];
+        if (!_box.isTopEdge && !_box.isLeftEdge && !_next?.isBomb) {
+          _next.steps++;
+        }
+
+        // Top Right
+        _next = this.boxs[i - this.x + 1];
+        if (!_box.isTopEdge && !_box.isRightEdge && !_next?.isBomb) {
+          _next.steps++;
+        }
+
+        // Bottom Right
+        _next = this.boxs[i + this.x + 1];
+        if (!_box.isBottomEdge && !_box.isRightEdge && !_next?.isBomb) {
+          _next.steps++;
+        }
+
+        // Bottom Left
+        _next = this.boxs[i + this.x - 1];
+        if (!_box.isBottomEdge && !_box.isLeftEdge && !_next?.isBomb) {
+          _next.steps++;
+        }
+      }
+    }
+    this.plotDOM();
+  };
+
+  plotDOM = () => {
+    const _ROOT_ = document.querySelector("#gameArea");
+    if (!_ROOT_) {
+      console.error("DOM with id #gameArea not found");
+      return false;
+    }
+
+    debugger;
+    let rowBlockDiv = document.createElement("div");
+    for (let i = 0; i < this.totalBox; i++) {
       const newDiv = document.createElement("div");
-      const newContent = document.createTextNode(j * 5 + (i + 1));
-      newDiv.setAttribute("id", "d" + (j * 5 + (i + 1)));
-      //newDiv.appendChild(newContent);
-      rowDiv.appendChild(newDiv);
+      const _text = this.boxs[i].steps > 0 ? this.boxs[i].steps : "";
+      let classList = ["box"];
+      classList = classList.concat(_text ? ["floor-map"] : []);
+      classList = classList.concat(this.boxs[i].isBomb ? ["boom"] : []);
+      newDiv.setAttribute("id", "d" + i);
+
+      newDiv.className = `${classList.join(" ")}`;
+      const newContent = document.createTextNode(_text);
+      newDiv.appendChild(newContent);
+      rowBlockDiv.appendChild(newDiv);
+
+      if (this.boxs[i].isRightEdge) {
+        _ROOT_.appendChild(rowBlockDiv);
+        rowBlockDiv = document.createElement("div"); // reset
+      }
     }
-    _ROOT_DOM.appendChild(rowDiv);
-  }
+  };
+}
 
-  placeBomb();
+const loadGame = () => {
+  const _g = new JSMinesweeper(20, 20, 10);
 };
 
-const init = () => {
-  config.total = config.row * config.col;
-  bombPos = getRandomBombPos();
-  renderBoard();
-};
-
-const getRandomBombPos = () => {
-  var arr = [];
-  while (arr.length < config.bomb) {
-    var r = Math.floor(Math.random() * config.total) + 1;
-    if (arr.indexOf(r) === -1) arr.push(r);
-  }
-  console.log(arr);
-  return arr;
-};
-
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", loadGame);
