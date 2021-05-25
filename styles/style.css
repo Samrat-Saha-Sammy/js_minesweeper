@@ -31,3 +31,10 @@
   background-color: #e1274b;
   cursor: pointer;
 }
+
+#gameArea div.hidden {
+  background-color: #035cc3 !important;
+  background-image: none !important;
+  color: #035cc3 !important;
+  cursor: pointer;
+}

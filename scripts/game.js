@@ -25,9 +25,7 @@ class JSMinesweeper {
         steps: this.bombLocations.includes(_i) ? -1 : 0,
       };
     }
-
-    this.boxs = [...arr];
-    this.calcBombSteps();
+    return [...arr];
   };
 
   getRandomBombPos = () => {
@@ -94,14 +92,22 @@ class JSMinesweeper {
     this.plotDOM();
   };
 
+  handleBoxClick = (_e) => {
+    var x = /\d+/;
+    const _id = parseInt(_e.target?.id.match(x)[0], 10);
+    const _idx = _id - 1;
+    const _box = this.boxs[_idx];
+    debugger;
+  };
+
   plotDOM = () => {
     const _ROOT_ = document.querySelector("#gameArea");
+    _ROOT_.innerHTML = "";
     if (!_ROOT_) {
       console.error("DOM with id #gameArea not found");
       return false;
     }
 
-    debugger;
     let rowBlockDiv = document.createElement("div");
     for (let i = 0; i < this.totalBox; i++) {
       const newDiv = document.createElement("div");
@@ -109,11 +115,13 @@ class JSMinesweeper {
       let classList = ["box"];
       classList = classList.concat(_text ? ["floor-map"] : []);
       classList = classList.concat(this.boxs[i].isBomb ? ["boom"] : []);
+      classList = classList.concat(this.boxs[i].isHidden ? ["hidden"] : []);
       newDiv.setAttribute("id", "d" + i);
 
       newDiv.className = `${classList.join(" ")}`;
       const newContent = document.createTextNode(_text);
       newDiv.appendChild(newContent);
+      newDiv.addEventListener("click", this.handleBoxClick);
       rowBlockDiv.appendChild(newDiv);
 
       if (this.boxs[i].isRightEdge) {
@@ -125,7 +133,8 @@ class JSMinesweeper {
 }
 
 const loadGame = () => {
-  const _g = new JSMinesweeper(20, 20, 10);
+  const _g = new JSMinesweeper(10, 10, 5);
+  _g.calcBombSteps();
 };
 
 document.addEventListener("DOMContentLoaded", loadGame);
